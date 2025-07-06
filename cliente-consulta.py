@@ -2,7 +2,7 @@ import asyncio
 import aiohttp
 
 async def recolectar_datos():
-    async with aiohttp.clientSession() as sesion:
+    async with aiohttp.ClientSession() as sesion:
         while True:
             async with sesion.get("http://127.0.0.1:6000/data") as response:
                 data = await response.json()

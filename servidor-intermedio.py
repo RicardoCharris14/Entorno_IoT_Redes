@@ -27,6 +27,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 "humedad": unpacked_data[4]
             }
 
+            print(f"Datos recibidos: {sensor}")
+
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_final:
                 s_final.connect(('127.0.0.1', 4040))
                 s_final.sendall(json.dumps(sensor).encode('utf-8'))
