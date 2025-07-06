@@ -1,11 +1,33 @@
 #include <iostream>
+#include <fstream>
 #include <ctime>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstring>
+#include <thread>
+#include <chrono>
+#include <random>
 
 int PORT = 8080;
 std::string ADDR = "127.0.0.1";
+
+std::random_device rd;
+std::mt19937 gen(rd());
+
+float generar_temperatura(){
+    std::uniform_real_distribution<float> dis(0.0f, 30.0f);
+    return dis(gen);
+}
+
+float generar_presion(){
+    std::uniform_real_distribution<float> dis(0.70f, 1.30f);
+    return dis(gen);
+}
+
+float generar_humedad(){
+    std::uniform_real_distribution<float> dis(0.0f, 100.0f);
+    return dis(gen);
+}
 
 // Convierte uint64_t a big-endian
 uint64_t htonll(uint64_t value) {
@@ -33,21 +55,40 @@ int main(){
 
     connect(sock, (sockaddr*)&server, sizeof(server));
 
-    int16_t id = htons(2);
-    uint64_t fecha_hora = htonll(time(nullptr));
-    uint32_t temperatura = float_to_network(23.5f);
-    uint32_t presion = float_to_network(1.02f);
-    uint32_t humedad = float_to_network(50.0f);
+    // Ejemplo de lectura de ID desde archivo
+    
+    while (true){
+        std::ifstream input_file("id.txt");
+        int id_from_file = 1;
+        if (input_file.is_open()) {
+            input_file >> id_from_file;
+            input_file.close()
+        }
 
-    char buffer[22];
-    memcpy(buffer, &id, 2);
-    memcpy(buffer + 2, &fecha_hora, 8);
-    memcpy(buffer + 10, &temperatura, 4);
-    memcpy(buffer + 14, &presion, 4);
-    memcpy(buffer + 18, &humedad, 4);
+        int16_t id = htons(id_from_file);
+        uint64_t fecha_hora = htonll(time(nullptr));
+        uint32_t temperatura = float_to_network(generar_temperatura());
+        uint32_t presion = float_to_network(generar_presion());
+        uint32_t humedad = float_to_network(generar_humedad());
+    
+        char buffer[22];
+        memcpy(buffer, &id, 2);
+        memcpy(buffer + 2, &fecha_hora, 8);
+        memcpy(buffer + 10, &temperatura, 4);
+        memcpy(buffer + 14, &presion, 4);
+        memcpy(buffer + 18, &humedad, 4);
+    
+        send(sock, buffer, sizeof(buffer), 0);
 
-    send(sock, buffer, sizeof(buffer), 0);
-
+        std::ofstream output_file("id.txt");
+        if (output_file){
+            output_file << ++id_from_file;
+            output_file.close();
+        }
+        
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+    }
+    
     close(sock);
     return 0;
 }
