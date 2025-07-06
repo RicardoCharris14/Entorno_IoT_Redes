@@ -9,24 +9,27 @@
 #include <random>
 
 int PORT = 8080;
-std::string ADDR = "127.0.0.1";
+std::string ADDR = "192.168.1.5";
 
 std::random_device rd;
 std::mt19937 gen(rd());
 
 float generar_temperatura(){
     std::uniform_real_distribution<float> dis(0.0f, 30.0f);
-    return dis(gen);
+    float valor = dis(gen);
+    return std::round(valor * 10.0f) / 10.0f;
 }
 
 float generar_presion(){
     std::uniform_real_distribution<float> dis(0.70f, 1.30f);
-    return dis(gen);
+    float valor = dis(gen);
+    return std::round(valor * 100.0f) / 100.0f;
 }
 
 float generar_humedad(){
     std::uniform_real_distribution<float> dis(0.0f, 100.0f);
-    return dis(gen);
+    float valor = dis(gen);
+    return std::round(valor * 10.0f) / 10.0f;
 }
 
 // Convierte uint64_t a big-endian
@@ -47,22 +50,27 @@ uint32_t float_to_network(float value) {
 }
 
 int main(){
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    sockaddr_in server{};
-    server.sin_family = AF_INET;
-    server.sin_port = htons(PORT);
-    inet_pton(AF_INET, ADDR.c_str(), &server.sin_addr);
-
-    connect(sock, (sockaddr*)&server, sizeof(server));
-
-    // Ejemplo de lectura de ID desde archivo
     
     while (true){
+
+        int sock = socket(AF_INET, SOCK_STREAM, 0);
+        sockaddr_in server{};
+        server.sin_family = AF_INET;
+        server.sin_port = htons(PORT);
+        inet_pton(AF_INET, ADDR.c_str(), &server.sin_addr);
+
+        if (connect(sock, (sockaddr*)&server, sizeof(server)) < 0){
+            std::cerr << "Error al conectar con el servidor." << std::endl;
+            close(sock);
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+            continue;
+        }
+
         std::ifstream input_file("id.txt");
         int id_from_file = 1;
         if (input_file.is_open()) {
             input_file >> id_from_file;
-            input_file.close()
+            input_file.close();
         }
 
         int16_t id = htons(id_from_file);
@@ -78,7 +86,12 @@ int main(){
         memcpy(buffer + 14, &presion, 4);
         memcpy(buffer + 18, &humedad, 4);
     
-        send(sock, buffer, sizeof(buffer), 0);
+        ssize_t bytes_enviados = send(sock, buffer, sizeof(buffer), 0);
+        if (bytes_enviados <= 0){
+            std::cerr << "Error al enviar los datos." << std::endl;
+        } else {
+            std::cout << "Datos enviados correctamente." << std::endl;
+        }
 
         std::ofstream output_file("id.txt");
         if (output_file){
@@ -86,9 +99,11 @@ int main(){
             output_file.close();
         }
         
+
+        close(sock);
+
         std::this_thread::sleep_for(std::chrono::seconds(5));
     }
     
-    close(sock);
     return 0;
 }

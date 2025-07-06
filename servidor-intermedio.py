@@ -27,7 +27,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 "humedad": unpacked_data[4]
             }
 
-            print(f"Datos recibidos: {sensor}")
+            print(f"Datos recibidos:\n{sensor}\n")
 
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_final:
                 s_final.connect(('127.0.0.1', 4040))

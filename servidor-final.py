@@ -42,7 +42,7 @@ def iniciar_servidor_tcp():
                           sensor_data["temperatura"], sensor_data["presion"], sensor_data["humedad"])
                     )
                     conn.commit()
-                    print(f"Datos guardados en el repositorio:\n{sensor_data}")
+                    print(f"Datos guardados en el repositorio:\n{sensor_data}\n")
 
 
 app = FastAPI()
