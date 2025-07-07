@@ -153,7 +153,7 @@ int main() {
 
         SSL_write(ssl, mensaje, total_len);
 
-        std::cout << "Datos enviados con firma RSA." << std::endl;
+        std::cout << "Datos con ID " << id_val << " enviados con firma RSA" << std::endl;
         std::ofstream out("id.txt"); out << id_val + 1; out.close();
 
         delete[] mensaje;
