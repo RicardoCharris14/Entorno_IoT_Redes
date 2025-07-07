@@ -5,7 +5,7 @@ async def recolectar_datos():
     async with aiohttp.ClientSession() as sesion:
         contador = 1
         while True:
-            async with sesion.get("http://192.168.1.5:4200/data") as response:
+            async with sesion.get("http://127.0.0.1:4200/data") as response:
                 data = await response.json()
                 print(f"***LECTURA DE DATOS NÚMERO {contador}***\n")
                 for i, registro in enumerate(data):
