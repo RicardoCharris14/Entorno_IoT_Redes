@@ -34,15 +34,18 @@ def iniciar_servidor_tcp():
                 data = conn_socket.recv(1024)
                 if data:
                     sensor_data = json.loads(data.decode('utf-8'))
-                    cursor.execute(
-                    """
-                        INSERT INTO sensor_data (id, fecha_hora, temperatura, presion, humedad) 
-                        VALUES (?, ?, ?, ?, ?)    
-                    """, (sensor_data["id"], sensor_data["fecha_hora"],
-                          sensor_data["temperatura"], sensor_data["presion"], sensor_data["humedad"])
-                    )
-                    conn.commit()
-                    print(f"Datos guardados en el repositorio:\n{sensor_data}\n")
+                    try:
+                        cursor.execute(
+                        """
+                            INSERT INTO sensor_data (id, fecha_hora, temperatura, presion, humedad) 
+                            VALUES (?, ?, ?, ?, ?)    
+                        """, (sensor_data["id"], sensor_data["fecha_hora"],
+                            sensor_data["temperatura"], sensor_data["presion"], sensor_data["humedad"])
+                        )
+                        conn.commit()
+                        print(f"Datos guardados en el repositorio:\n{sensor_data}\n")   
+                    except Exception as e:
+                        print(f"Error al insertar los datos: {e}")
 
 
 app = FastAPI()
