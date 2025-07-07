@@ -5,6 +5,9 @@ import json
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.exceptions import InvalidSignature
+from pymodbus.client import ModbusTcpClient
+from pymodbus.payload import BinaryPayloadBuilder
+from pymodbus.constants import Endian
 
 HOST = '0.0.0.0'
 PORT = 8080
@@ -64,7 +67,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 # Reenviar al servidor final (sin TLS en este ejemplo)
                 try:
                     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_final:
-                        s_final.connect(('127.0.0.1', 4040))
+                        s_final.connect(('127.0.0.1', 8000))
                         s_final.sendall(json.dumps(sensor).encode('utf-8'))
                 except Exception as e:
                     print(f"Error al conectar con el servidor final: {e}\n")

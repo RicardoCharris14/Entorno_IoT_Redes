@@ -6,8 +6,8 @@ import uvicorn
 import threading
 
 HOST = '0.0.0.0'
-PORT_SERVER = 4040
-PORT_API = 6000
+PORT_SERVER = 8000
+PORT_API = 4200
 
 conn = sqlite3.connect("sensors.db", check_same_thread=False)
 cursor = conn.cursor()

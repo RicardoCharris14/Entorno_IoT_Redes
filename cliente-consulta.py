@@ -4,7 +4,7 @@ import aiohttp
 async def recolectar_datos():
     async with aiohttp.ClientSession() as sesion:
         while True:
-            async with sesion.get("http://192.168.1.5:6000/data") as response:
+            async with sesion.get("http://192.168.1.5:4200/data") as response:
                 data = await response.json()
                 for registro in data:
                     _, _, temp, pres, hum = registro
