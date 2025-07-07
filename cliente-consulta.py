@@ -3,29 +3,39 @@ import aiohttp
 
 async def recolectar_datos():
     async with aiohttp.ClientSession() as sesion:
+        contador = 1
         while True:
             async with sesion.get("http://192.168.1.5:4200/data") as response:
                 data = await response.json()
-                for registro in data:
+                print(f"***LECTURA DE DATOS NÚMERO {contador}***\n")
+                for i, registro in enumerate(data):
                     _, _, temp, pres, hum = registro
-                    temperatura = (0.0 <= temp <= 5.0 or 25.0 <= temp <= 30.0)
-                    presion = (0.7 <= pres <= 0.8 or 1.2 <= pres <= 1.3)
-                    humedad = (0.0 <= hum <= 15.0 or 85.0 <= hum <= 100.0)
+                    temperatura = (0.0 <= temp <= 3.0 or 27.0 <= temp <= 30.0)
+                    presion = (0.7 <= pres <= 0.75 or 1.25 <= pres <= 1.3)
+                    humedad = (0.0 <= hum <= 10.0 or 90.0 <= hum <= 100.0)
+                    
                     if not temperatura and not presion and not humedad: 
-                        print(f"Condiciones normales: {temp}°C, {pres} atm y {hum}% de humedad. ")
-                    else:                        
+                        print(f"Registro {i+1}: Condiciones normales: {temp}°C, {pres} atm y {hum}% de humedad.")
+                    else:
+                        print(f"Registro {i+1}:\n{{")                        
                         if temperatura:
-                            print(f"¡ALERTA! Temperatura: {temp}°C")
+                            print(f"\t¡ALERTA! Temperatura: {temp}°C")
                         else:
-                            print(f"Temperatura normal: {temp}°C")
+                            print(f"\tTemperatura normal: {temp}°C")
                         if  presion:
-                            print(f"¡ALERTA! Presion: {pres} atm")
+                            print(f"\t¡ALERTA! Presion: {pres} atm")
                         else: 
-                            print(f"Presion normal: {pres} atm")
+                            print(f"\tPresion normal: {pres} atm")
                         if humedad:
-                            print(f"¡ALERTA! Humedad: {hum}% \n")
+                            print(f"\t¡ALERTA! Humedad: {hum}%")
                         else: 
-                            print(f"Humedad normal: {hum}% \n")
+                            print(f"\tHumedad normal: {hum}%")
+                        
+                        print("}")
+                    
+                    if (i == len(data)-1):
+                        print("\n\n")
+                        contador+=1
                         
                     
 
